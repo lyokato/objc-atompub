@@ -1,0 +1,8 @@
+- Mon Jun 23 18:17:00 2008
+
+-- added interface definition to AtompubContent.h
+
+- Mon Jun 23 18:04:00 2008
+
+-- applied a patch from Kazuyoshi Kato.
+   fixed a bug around AtompubClient and W3CDTF.

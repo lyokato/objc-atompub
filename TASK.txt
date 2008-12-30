@@ -1,0 +1,13 @@
+TASK:
+
+- documentation
+- example applications
+- more tests
+- adopt NSCoding protocol to AtomElement class
+- adopt NSCopying protocol to AtomElement class
+- add description method to AtomElement class
+- create AtompubClientDelegate protocol
+- change AtompubClient delegation object type: id -> NSObject <AtompubClientDelegate> *
+- add KeyChain controller to each AtompubCredential class for both Mac OSX and iPhone OS
+- make this package one single framework.
+- add a credential class for OAuth

@@ -1,0 +1,152 @@
+/********************************************
+ COMPILE
+*********************************************/
+you need to add -lcrypto parameter for compile option (SSCrypt dependency)
+
+/********************************************
+ * Atom Syndication Format parsing/building
+ ********************************************/
+We have many classes that represents each atom element
+
+- AtomService
+- AtomWorkspace
+- AtomCollection
+- AtomCategories
+- AtomCategory
+- AtomFeed
+- AtomEntry
+- AtomPerson
+- AtomGenerator
+- AtomLink
+- AtomContent
+- AtomControl
+
+** simple example
+
+*** build entry
+
+AtomEntry *entry = [ AtomEntry entry ];
+// setter
+[ entry setTitle:@"MyEntry" ];
+[ entry setSummary:@"summary" ];
+[ entry setPublished:[ NSCalendarDate calendarDate ] ];
+AtomPerson *person = [ AtomPerson person ];
+[ person setName:@"Lyo Kato" ];
+[ person setEmail:@"example@example.org" ];
+[ person setURL:[ NSURL URLWithString:@"http://example.org/lyokato" ] ];
+[ entry setAuthor:person ];
+
+// getter
+NSString *title = [ entry title ];
+NSString *summary = [ entry summary ];
+NSCalendarDate *date = [ entry published ];
+AtomPerson *person = [ entry author ];
+NSString *authorName = [ person name ];
+// convert to string NSString *entryXMLString = [ entry stringValue ]; 
+
+*** parse feed
+
+AtomFeed *feed = [ AtomFeed feedWithXMLString:@"<feed xmlns=\"\">...</feed>" ];
+NSString *title = [ feed title ];
+
+/*******************************************
+ * instantiate client and set parameters
+ ********************************************/
+AtompubClient *client = [ AtompubClient client ];
+
+// set credential
+[ client setCredential:[ BasicCredential credentialWithUsername:@"myname"
+                                                       password:@"mypass" ] ];
+/*
+you also can set WSSECredential instead of BasicCredential
+[ client setCredential:[ WSSECredential credentialWithUsername:@"myname"
+                                                      password:@"mypass" ] ];
+*/
+
+// set agentname
+[ client setAgentName:@"MyAgent/1.0" ];
+
+// set timeoutinterval
+[ client setTimeoutInterval:15 ];
+
+// if you want to control caching by 'ETag' or 'If-Modified-Since' http-header
+[ client setCacheStorage:[ AtompubCacheStorage storage ] ];
+
+/*****************************************
+ prepare callbacks
+ *****************************************/
+
+* example for getting service document
+
+
+@implementation AtompubClientController
+- (void)clientDidReceiveService:(AtomService *)service {
+  NSArray *workspaces = [ service workspaces ];
+}
+@end
+
+
+
+/*****************************************
+ start request
+ *****************************************/
+// set controller for delegating
+[ client setDelegate:[ [ [ AtompubClientController alloc ] init ] autorelease ] ];
+[ client startLoadingServiceWithURL:[ NSURL URLWithString:@"http://example.org/service" ] ];
+
+// and later on, the callback(clinetDidReceiveService:) you implemented above will be invoked.
+
+
+- pairs of request type and callback
+
+| REQUEST_TYPE | startLoadingServiceWithURL:(NSURL *)url
+| CALLBACK     | clientDidReceiveService:(AtomService *)service
+
+| REQUEST_TYPE | startLoadingCategoriesWithURL:(NSURL *)url
+| CALLBACK     | clientDidReceiveCategories:(AtomCategories *)cats
+
+| REQUEST_TYPE | startLoadingFeedWithURL:(NSURL *)url
+| CALLBACK     | clientDidReceiveFeed:(AtomFeed *)feed
+
+| REQUEST_TYPE | startLoadingEntryWithURL:(NSURL *)url
+| CALLBACK     | clientDidReceiveEntry:(AtomEntry *)entry
+
+| REQUEST_TYPE | startLoadingMediaWithURL:(NSURL *)url
+| CALLBACK     | clientDidReceiveMedia:(NSData *)mediaResource
+
+| REQUEST_TYPE | startCreatingEntry:(AtomEntry *)entry withURL:(NSURL *)url slug:(NSString *)slug
+| CALLBACK     | clientDidCreateEntry:(AtomEntry *)entry withLocation:(NSURL *)location
+
+| REQUEST_TYPE | startCreatingMedia:(NSData *)resource withURL:(NSURL *)url contentType:(NSString *)type slug:(NSString *)slug
+| CALLBACK     | clientDidCreateMediaLinkEntry:(AtomEntry *)entry withLocation:(NSURL *)location
+
+| REQUEST_TYPE | startUpdatingEntry:(AtomEntry *)entry withURL:(NSURL *)url
+| CALLBACK     | clientDidUpdateEntry
+
+| REQUEST_TYPE | startUpdatingMedia:(NSData *)resource withURL:(NSURL *)url
+| CALLBACK     | clientDidUpdateMedia
+
+| REQUEST_TYPE | startDeletingEntryWithURL:(NSURL *)url
+| CALLBACK     | clientDidDeleteEntry
+
+| REQUEST_TYPE | startDeletingMediaWithURL:(NSURL *)url
+| CALLBACK     | clientDidDeleteMedia
+
+
+and if any error occurs while client is requesting,
+the callback (client:(AtompubClient *)client  didFailWithError:(NSError *)error ) will be invoked.
+
+** Accessors
+
+You can access last request/response data through each accessors.
+
+- lastRequestURL
+- lastResponse
+- responseData
+
+- (void)client:(AtompubClient *)client didFailWithError:(NSError *)error {
+  NSURL *url = [ client lastRequestURL ];
+  NSHTTPURLResponse *res = [ client lastResponse ];
+  NSData *resData = [ client responseData ];
+}
+
