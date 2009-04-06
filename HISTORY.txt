@@ -1,6 +1,7 @@
 - Mon Apr 06 16:39:00 2009
 
 -- removed SSCrypto dependency
+   thanks to kzys
 
 - Mon Jun 23 18:17:00 2008
 
