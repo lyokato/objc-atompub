@@ -3,7 +3,6 @@
 @implementation W3CDTF
 
 + (NSDate *)dateFromString:(NSString *)formattedDate {
-
   NSRange idx = [ formattedDate rangeOfString:@"T" ];
   if (idx.location == NSNotFound)
     return nil;
@@ -69,6 +68,22 @@
   } else {
     seconds = milliseconds = 0;
   }
+#if 1
+  NSCalendar *gregorian = [ [ NSCalendar alloc ] initWithCalendarIdentifier:NSGregorianCalendar ];
+  [ gregorian setTimeZone:[ NSTimeZone timeZoneWithAbbreviation:@"UTC" ] ];
+
+  NSDateComponents *components = [ [ NSDateComponents alloc ] init ];
+  [ components setYear:year ];
+  [ components setMonth:month ];
+  [ components setDay:date ];
+  [ components setHour:hours ];
+  [ components setMinute:minutes ];
+  [ components setSecond:seconds ];
+
+  NSDate *utcDate = [ gregorian dateFromComponents:components ];
+  [ components release ];
+  [ gregorian release ];
+#else
   NSDate *utcDate = [ NSCalendarDate dateWithYear:year
                                             month:month
                                               day:date
@@ -76,17 +91,19 @@
                                            minute:minutes
                                            second:seconds
                                          timeZone:[ NSTimeZone timeZoneWithAbbreviation:@"UTC" ] ];
+#endif
   int offset = (( offsetHours * 3600 ) + ( offsetMinutes * 60 )) * multiplier;
   NSTimeInterval interval = [ utcDate timeIntervalSinceReferenceDate ] - offset;
   return [ NSDate dateWithTimeIntervalSinceReferenceDate:interval ];
 }
 
 + (NSString *)stringFromDate:(NSDate *)date {
-  NSTimeZone *utc = [ NSTimeZone timeZoneWithName: @"UTC" ];
-  NSString *created = [ date descriptionWithCalendarFormat:@"%Y-%m-%dT%H:%M:%SZ"
-                                                  timeZone:utc
-                                                    locale:nil ];
-  return created;
+    time_t clock = [date timeIntervalSince1970];
+
+    char str[255];
+    strftime(str, sizeof(str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&clock));
+
+    return [NSString stringWithUTF8String: str];
 }
 
 @end

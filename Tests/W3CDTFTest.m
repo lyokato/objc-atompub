@@ -2,6 +2,7 @@
 #import "W3CDTF.h"
 
 @implementation W3CDTFTest
+
 - (void)testParsing {
   NSString *pattern1 = @"2008-01-01T04:05:22";
   NSString *pattern2 = @"2008-01-01T04:05:22Z";
@@ -19,4 +20,5 @@
   STAssertEqualObjects([ date4 description ], @"2008-01-01 13:05:00 +0900", nil );
   STAssertEqualObjects([ date5 description ], @"2008-01-01 04:05:00 +0900", nil );
 }
+
 @end

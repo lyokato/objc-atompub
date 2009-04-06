@@ -1,9 +1,4 @@
 /********************************************
- COMPILE
-*********************************************/
-you need to add -lcrypto parameter for compile option (SSCrypt dependency)
-
-/********************************************
  * Atom Syndication Format parsing/building
  ********************************************/
 We have many classes that represents each atom element

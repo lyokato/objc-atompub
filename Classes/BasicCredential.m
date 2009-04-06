@@ -1,5 +1,5 @@
 #import "BasicCredential.h"
-#import "SSCrypto.h"
+#import "Base64.h"
 
 @implementation BasicCredential
 
@@ -20,12 +20,10 @@
 
 - (void)setCredentialToRequest:(NSMutableURLRequest *)request {
   NSString *token = [ NSString stringWithFormat:@"%@:%@", username, password ];
-  SSCrypto *crypto = [ [ SSCrypto alloc ] init ];
-  [ crypto setClearTextWithString:token ];
-  NSString *token64 = [ [ crypto clearTextAsData ] encodeBase64WithNewlines:NO ];
+  NSData* tokenData = [token dataUsingEncoding: NSASCIIStringEncoding];
+  NSString *token64 = Base64_encode([tokenData bytes], [tokenData length]);
   [ request setValue:[ NSString stringWithFormat:@"Basic %@", token64 ]
   forHTTPHeaderField:@"Authorization" ];
-  [ crypto release ];
 }
 
 - (void)dealloc {
